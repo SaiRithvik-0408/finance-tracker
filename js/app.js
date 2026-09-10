@@ -75,9 +75,19 @@ const DataManager = {
   set(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
   },
-  formatCurrency(val, symbol = '$') {
+  getCurrencySymbol() {
+    const settings = this.get(STORAGE_KEYS.SETTINGS) || {};
+    return settings.currency || '$';
+  },
+  setCurrencySymbol(symbol) {
+    const settings = this.get(STORAGE_KEYS.SETTINGS) || {};
+    settings.currency = symbol;
+    this.set(STORAGE_KEYS.SETTINGS, settings);
+  },
+  formatCurrency(val, overrideSymbol = null) {
+    const symbol = overrideSymbol || this.getCurrencySymbol();
     const num = Number(val) || 0;
-    return symbol + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return symbol + ' ' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 };
 
@@ -113,8 +123,22 @@ function highlightActiveNav() {
   });
 }
 
+// Currency Selector Controller
+function setupCurrencySelector() {
+  const select = document.getElementById('currency-select');
+  if (select) {
+    const currentSymbol = DataManager.getCurrencySymbol();
+    select.value = currentSymbol;
+    select.addEventListener('change', (e) => {
+      DataManager.setCurrencySymbol(e.target.value);
+      window.location.reload();
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initStorage();
   setupTheme();
+  setupCurrencySelector();
   highlightActiveNav();
 });
