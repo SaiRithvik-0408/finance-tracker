@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budget Planner — FinancePulse</title>
+  <meta name="description" content="Free monthly budget planner tool. Set spending limits per category, track actual expenses, and stop overspending today.">
+  
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">$</div>
+        <span>FinancePulse</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">📊 Dashboard</a></li>
+        <li><a href="budget.html" class="nav-link active">🎯 Budget</a></li>
+        <li><a href="expenses.html" class="nav-link">💳 Expenses</a></li>
+        <li><a href="investment.html" class="nav-link">📈 Investment</a></li>
+        <li><a href="savings.html" class="nav-link">🐖 Savings</a></li>
+        <li><a href="debt.html" class="nav-link">⚡ Debt Payoff</a></li>
+        <li><a href="networth.html" class="nav-link">🏛️ Net Worth</a></li>
+        <li><a href="currency.html" class="nav-link">💱 Currency</a></li>
+      </ul>
+
+      <button id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Theme">☀️</button>
+    </div>
+  </nav>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    <main class="content-area">
+      
+      <div class="ad-slot ad-slot-header">
+        <span class="ad-placeholder-text">Google AdSense Header Banner (728x90)</span>
+      </div>
+
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800;">Monthly Budget Planner</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Set monthly target limits per category and compare with actual spent.</p>
+      </div>
+
+      <div class="grid-2">
+        <!-- Add/Edit Category Budget Form -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Set Category Budget Target</h2>
+          </div>
+          <form id="budget-form">
+            <div class="form-group">
+              <label class="form-label">Category Name</label>
+              <input type="text" id="budget-category" class="form-control" placeholder="e.g. Groceries, Rent, Utilities" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Monthly Limit Target ($)</label>
+              <input type="number" id="budget-target" class="form-control" placeholder="500" min="1" step="any" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Save Budget Target</button>
+          </form>
+        </div>
+
+        <!-- Summary -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+          <div style="text-align: center;">
+            <div style="font-size: 0.9rem; color: var(--text-secondary);">Total Planned Monthly Budget</div>
+            <div id="total-planned-budget" style="font-size: 2.2rem; font-weight: 800; color: var(--emerald); margin: 0.3rem 0;">$0.00</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Adjust your targets to match your monthly income goals.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-slot ad-slot-incontent">
+        <span class="ad-placeholder-text">Google AdSense In-Article Banner</span>
+      </div>
+
+      <!-- BUDGET CATEGORY PROGRESS LIST -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Category Progress vs Actual Spending</h2>
+        </div>
+        <div id="budget-progress-container" style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+    </main>
+
+    <aside class="sidebar-area">
+      <div class="ad-slot ad-slot-sidebar">
+        <span class="ad-placeholder-text">Google AdSense Sticky Sidebar (300x600)</span>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p>© 2026 FinancePulse. Privacy-focused budget planner.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('budget-form');
+      
+      function renderBudgets() {
+        const budgets = DataManager.get(STORAGE_KEYS.BUDGETS) || {};
+        const transactions = DataManager.get(STORAGE_KEYS.TRANSACTIONS) || [];
+
+        // Calculate spending per category
+        const spentMap = {};
+        transactions.forEach(t => {
+          if (t.type === 'expense') {
+            spentMap[t.category] = (spentMap[t.category] || 0) + Number(t.amount);
+          }
+        });
+
+        let totalPlanned = 0;
+        const container = document.getElementById('budget-progress-container');
+        const entries = Object.entries(budgets);
+
+        if (entries.length === 0) {
+          container.innerHTML = '<p style="color: var(--text-muted);">No budget targets set yet.</p>';
+          document.getElementById('total-planned-budget').innerText = '$0.00';
+          return;
+        }
+
+        container.innerHTML = entries.map(([category, target]) => {
+          totalPlanned += Number(target);
+          const spent = spentMap[category] || 0;
+          const pct = Math.min(100, Math.round((spent / target) * 100));
+          const isOver = spent > target;
+
+          return `
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <span style="font-weight: 700; font-size: 1rem;">${category}</span>
+                <span style="font-size: 0.9rem; color: ${isOver ? 'var(--rose)' : 'var(--text-secondary)'};">
+                  ${DataManager.formatCurrency(spent)} of ${DataManager.formatCurrency(target)} (${pct}%)
+                </span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${pct}%; background: ${isOver ? 'var(--rose)' : 'linear-gradient(90deg, var(--emerald), var(--blue))'};"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; font-size: 0.8rem;">
+                <span style="color: ${isOver ? 'var(--rose)' : 'var(--emerald)'};">
+                  ${isOver ? 'Over by ' + DataManager.formatCurrency(spent - target) : 'Remaining: ' + DataManager.formatCurrency(target - spent)}
+                </span>
+                <button onclick="deleteBudget('${category}')" class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Remove</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        document.getElementById('total-planned-budget').innerText = DataManager.formatCurrency(totalPlanned);
+      }
+
+      window.deleteBudget = function(cat) {
+        const budgets = DataManager.get(STORAGE_KEYS.BUDGETS) || {};
+        delete budgets[cat];
+        DataManager.set(STORAGE_KEYS.BUDGETS, budgets);
+        renderBudgets();
+      };
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const cat = document.getElementById('budget-category').value.trim();
+        const target = parseFloat(document.getElementById('budget-target').value);
+
+        if (cat && target > 0) {
+          const budgets = DataManager.get(STORAGE_KEYS.BUDGETS) || {};
+          budgets[cat] = target;
+          DataManager.set(STORAGE_KEYS.BUDGETS, budgets);
+          form.reset();
+          renderBudgets();
+        }
+      });
+
+      renderBudgets();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Net Worth Tracker — FinancePulse</title>
+  <meta name="description" content="Calculate your true financial net worth. Balance your assets against liabilities in real-time.">
+  
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">$</div>
+        <span>FinancePulse</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">📊 Dashboard</a></li>
+        <li><a href="budget.html" class="nav-link">🎯 Budget</a></li>
+        <li><a href="expenses.html" class="nav-link">💳 Expenses</a></li>
+        <li><a href="investment.html" class="nav-link">📈 Investment</a></li>
+        <li><a href="savings.html" class="nav-link">🐖 Savings</a></li>
+        <li><a href="debt.html" class="nav-link">⚡ Debt Payoff</a></li>
+        <li><a href="networth.html" class="nav-link active">🏛️ Net Worth</a></li>
+        <li><a href="currency.html" class="nav-link">💱 Currency</a></li>
+      </ul>
+
+      <button id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Theme">☀️</button>
+    </div>
+  </nav>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    <main class="content-area">
+      
+      <div class="ad-slot ad-slot-header">
+        <span class="ad-placeholder-text">Google AdSense Header Banner (728x90)</span>
+      </div>
+
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800;">Net Worth Tracker</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Assets (What you own) minus Liabilities (What you owe).</p>
+      </div>
+
+      <!-- TOTAL NET WORTH HERO CARD -->
+      <div class="card" style="text-align: center; padding: 2rem;">
+        <span style="font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">Your Total Net Worth</span>
+        <div id="total-networth" style="font-size: 3rem; font-weight: 900; color: var(--emerald); margin: 0.5rem 0;">$0.00</div>
+        <div style="display: flex; justify-content: center; gap: 2rem; font-size: 0.95rem; margin-top: 1rem;">
+          <div>Total Assets: <strong id="total-assets" style="color: var(--emerald);">$0.00</strong></div>
+          <div>Total Liabilities: <strong id="total-liabilities" style="color: var(--rose);">$0.00</strong></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- ADD ASSET / LIABILITY FORM -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">+ Add Asset or Liability</h2>
+          </div>
+          <form id="nw-form">
+            <div class="form-group">
+              <label class="form-label">Item Name</label>
+              <input type="text" id="nw-name" class="form-control" placeholder="e.g. Stock Portfolio, Home Value, Mortgage" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Value ($)</label>
+              <input type="number" id="nw-val" class="form-control" placeholder="15000" min="0" step="any" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select id="nw-type" class="form-control">
+                <option value="asset">🟢 Asset (What you own)</option>
+                <option value="liability">🔴 Liability (What you owe)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Add Item</button>
+          </form>
+        </div>
+
+        <!-- RATIO DOUGHNUT CHART -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Assets vs Liabilities Ratio</h2>
+          </div>
+          <div style="height: 230px; position: relative;">
+            <canvas id="nwChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-slot ad-slot-incontent">
+        <span class="ad-placeholder-text">Google AdSense In-Article Banner</span>
+      </div>
+
+      <!-- ITEMS LIST TABLE -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Assets & Liabilities List</h2>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Estimated Value</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="nw-table-body">
+              <!-- Dynamically rendered -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <aside class="sidebar-area">
+      <div class="ad-slot ad-slot-sidebar">
+        <span class="ad-placeholder-text">Google AdSense Sticky Sidebar (300x600)</span>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p>© 2026 FinancePulse. Net worth evaluation tool.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script src="js/charts.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let nwChart = null;
+
+      // Seed initial sample net worth data if empty
+      let list = DataManager.get(STORAGE_KEYS.NETWORTH);
+      if (!list) {
+        list = [
+          { id: '1', name: 'Savings Account', value: 12500, type: 'asset' },
+          { id: '2', name: 'Stock Portfolio', value: 24000, type: 'asset' },
+          { id: '3', name: 'Car Loan', value: 8500, type: 'liability' },
+          { id: '4', name: 'Student Loan', value: 14200, type: 'liability' }
+        ];
+        DataManager.set(STORAGE_KEYS.NETWORTH, list);
+      }
+
+      function renderNetWorth() {
+        const items = DataManager.get(STORAGE_KEYS.NETWORTH) || [];
+        const tbody = document.getElementById('nw-table-body');
+
+        let totalAssets = 0;
+        let totalLiabilities = 0;
+
+        items.forEach(i => {
+          const val = Number(i.value) || 0;
+          if (i.type === 'asset') totalAssets += val;
+          else totalLiabilities += val;
+        });
+
+        const netWorth = totalAssets - totalLiabilities;
+
+        document.getElementById('total-networth').innerText = DataManager.formatCurrency(netWorth);
+        document.getElementById('total-assets').innerText = DataManager.formatCurrency(totalAssets);
+        document.getElementById('total-liabilities').innerText = DataManager.formatCurrency(totalLiabilities);
+
+        if (items.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No items recorded.</td></tr>';
+        } else {
+          tbody.innerHTML = items.map(item => `
+            <tr>
+              <td><strong>${item.name}</strong></td>
+              <td><span class="badge ${item.type === 'asset' ? 'badge-success' : 'badge-danger'}">${item.type.toUpperCase()}</span></td>
+              <td style="font-weight: 700; color: ${item.type === 'asset' ? 'var(--emerald)' : 'var(--rose)'}">
+                ${DataManager.formatCurrency(item.value)}
+              </td>
+              <td>
+                <button onclick="deleteNwItem('${item.id}')" class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Delete</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+
+        // Render Chart
+        if (nwChart) nwChart.destroy();
+        nwChart = ChartManager.createDoughnutChart('nwChart', ['Assets', 'Liabilities'], [totalAssets, totalLiabilities], ['#00d4aa', '#ff4d4d']);
+      }
+
+      window.deleteNwItem = function(id) {
+        let items = DataManager.get(STORAGE_KEYS.NETWORTH) || [];
+        items = items.filter(x => x.id !== id);
+        DataManager.set(STORAGE_KEYS.NETWORTH, items);
+        renderNetWorth();
+      };
+
+      document.getElementById('nw-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('nw-name').value.trim();
+        const val = parseFloat(document.getElementById('nw-val').value);
+        const type = document.getElementById('nw-type').value;
+
+        if (name && val >= 0) {
+          const items = DataManager.get(STORAGE_KEYS.NETWORTH) || [];
+          items.push({ id: Date.now().toString(), name, value: val, type });
+          DataManager.set(STORAGE_KEYS.NETWORTH, items);
+          e.target.reset();
+          renderNetWorth();
+        }
+      });
+
+      renderNetWorth();
+    });
+  </script>
+</body>
+</html>

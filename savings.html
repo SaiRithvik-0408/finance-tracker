@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Savings Goal Tracker — FinancePulse</title>
+  <meta name="description" content="Track multiple savings goals visually. Emergency fund, vacation, tech gadgets, or home down payment tracker.">
+  
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">$</div>
+        <span>FinancePulse</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">📊 Dashboard</a></li>
+        <li><a href="budget.html" class="nav-link">🎯 Budget</a></li>
+        <li><a href="expenses.html" class="nav-link">💳 Expenses</a></li>
+        <li><a href="investment.html" class="nav-link">📈 Investment</a></li>
+        <li><a href="savings.html" class="nav-link active">🐖 Savings</a></li>
+        <li><a href="debt.html" class="nav-link">⚡ Debt Payoff</a></li>
+        <li><a href="networth.html" class="nav-link">🏛️ Net Worth</a></li>
+        <li><a href="currency.html" class="nav-link">💱 Currency</a></li>
+      </ul>
+
+      <button id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Theme">☀️</button>
+    </div>
+  </nav>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    <main class="content-area">
+      
+      <div class="ad-slot ad-slot-header">
+        <span class="ad-placeholder-text">Google AdSense Header Banner (728x90)</span>
+      </div>
+
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800;">Savings Goal Tracker</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Create custom financial goals and track your progress visual milestone by milestone.</p>
+      </div>
+
+      <!-- CREATE NEW GOAL FORM -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">+ Create New Savings Goal</h2>
+        </div>
+        <form id="savings-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Goal Name</label>
+            <input type="text" id="savings-name" class="form-control" placeholder="e.g. Dream Vacation" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Amount ($)</label>
+            <input type="number" id="savings-target" class="form-control" placeholder="5000" min="1" step="any" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Current Saved ($)</label>
+            <input type="number" id="savings-current" class="form-control" placeholder="1200" min="0" step="any" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Icon / Emoji</label>
+            <input type="text" id="savings-icon" class="form-control" placeholder="✈️, 🚗, 🏡, 🛡️" value="🎯">
+          </div>
+          <div class="form-group" style="justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary" style="height: 42px;">Save Goal</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="ad-slot ad-slot-incontent">
+        <span class="ad-placeholder-text">Google AdSense In-Article Banner</span>
+      </div>
+
+      <!-- GOALS CARDS CONTAINER -->
+      <div id="goals-container" class="grid-2">
+        <!-- Rendered dynamically -->
+      </div>
+
+    </main>
+
+    <aside class="sidebar-area">
+      <div class="ad-slot ad-slot-sidebar">
+        <span class="ad-placeholder-text">Google AdSense Sticky Sidebar (300x600)</span>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p>© 2026 FinancePulse. Reach your financial milestones faster.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      function renderGoals() {
+        const goals = DataManager.get(STORAGE_KEYS.SAVINGS) || [];
+        const container = document.getElementById('goals-container');
+
+        if (goals.length === 0) {
+          container.innerHTML = '<div class="card" style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No savings goals defined yet. Create your first goal above!</div>';
+          return;
+        }
+
+        container.innerHTML = goals.map(goal => {
+          const pct = Math.min(100, Math.round((goal.current / goal.target) * 100));
+          return `
+            <div class="card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <span style="font-size: 1.8rem;">${goal.icon || '🎯'}</span>
+                  <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 700;">${goal.name}</h3>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary);">Target: ${DataManager.formatCurrency(goal.target)}</span>
+                  </div>
+                </div>
+                <button onclick="deleteGoal('${goal.id}')" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Delete</button>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.3rem;">
+                <span>Saved: <strong>${DataManager.formatCurrency(goal.current)}</strong></span>
+                <span style="color: var(--emerald); font-weight: 700;">${pct}%</span>
+              </div>
+              
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${pct}%;"></div>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                <input type="number" id="add-amt-${goal.id}" class="form-control" placeholder="+ Add Amount ($)" style="font-size: 0.85rem;" min="1" step="any">
+                <button onclick="depositToGoal('${goal.id}')" class="btn btn-secondary" style="font-size: 0.85rem; white-space: nowrap;">+ Add Funds</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      window.deleteGoal = function(id) {
+        let goals = DataManager.get(STORAGE_KEYS.SAVINGS) || [];
+        goals = goals.filter(g => g.id !== id);
+        DataManager.set(STORAGE_KEYS.SAVINGS, goals);
+        renderGoals();
+      };
+
+      window.depositToGoal = function(id) {
+        const input = document.getElementById(`add-amt-${id}`);
+        const add = parseFloat(input.value);
+        if (add > 0) {
+          let goals = DataManager.get(STORAGE_KEYS.SAVINGS) || [];
+          const g = goals.find(x => x.id === id);
+          if (g) {
+            g.current = (g.current || 0) + add;
+            DataManager.set(STORAGE_KEYS.SAVINGS, goals);
+            renderGoals();
+          }
+        }
+      };
+
+      document.getElementById('savings-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('savings-name').value.trim();
+        const target = parseFloat(document.getElementById('savings-target').value);
+        const current = parseFloat(document.getElementById('savings-current').value) || 0;
+        const icon = document.getElementById('savings-icon').value.trim() || '🎯';
+
+        if (name && target > 0) {
+          const goals = DataManager.get(STORAGE_KEYS.SAVINGS) || [];
+          goals.push({ id: Date.now().toString(), name, target, current, icon });
+          DataManager.set(STORAGE_KEYS.SAVINGS, goals);
+          e.target.reset();
+          renderGoals();
+        }
+      });
+
+      renderGoals();
+    });
+  </script>
+</body>
+</html>

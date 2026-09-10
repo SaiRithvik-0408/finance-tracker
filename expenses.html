@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker — FinancePulse</title>
+  <meta name="description" content="Log daily expenses, filter transactions by category, and export your personal finance data to CSV instantly.">
+  
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">$</div>
+        <span>FinancePulse</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">📊 Dashboard</a></li>
+        <li><a href="budget.html" class="nav-link">🎯 Budget</a></li>
+        <li><a href="expenses.html" class="nav-link active">💳 Expenses</a></li>
+        <li><a href="investment.html" class="nav-link">📈 Investment</a></li>
+        <li><a href="savings.html" class="nav-link">🐖 Savings</a></li>
+        <li><a href="debt.html" class="nav-link">⚡ Debt Payoff</a></li>
+        <li><a href="networth.html" class="nav-link">🏛️ Net Worth</a></li>
+        <li><a href="currency.html" class="nav-link">💱 Currency</a></li>
+      </ul>
+
+      <button id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Theme">☀️</button>
+    </div>
+  </nav>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    <main class="content-area">
+      
+      <div class="ad-slot ad-slot-header">
+        <span class="ad-placeholder-text">Google AdSense Header Banner (728x90)</span>
+      </div>
+
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800;">Expense & Income Log</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Track every incoming dollar and outgoing expense easily.</p>
+      </div>
+
+      <!-- ADD TRANSACTION FORM -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">+ Add New Transaction</h2>
+        </div>
+        <form id="tx-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <input type="text" id="tx-desc" class="form-control" placeholder="e.g. Grocery Store" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount ($)</label>
+            <input type="number" id="tx-amount" class="form-control" placeholder="45.00" step="any" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <select id="tx-type" class="form-control">
+              <option value="expense">Expense (-)</option>
+              <option value="income">Income (+)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <input type="text" id="tx-cat" class="form-control" placeholder="Food, Salary, Housing" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" id="tx-date" class="form-control" required>
+          </div>
+          <div class="form-group" style="justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary" style="height: 42px;">Add Transaction</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="ad-slot ad-slot-incontent">
+        <span class="ad-placeholder-text">Google AdSense In-Article Banner</span>
+      </div>
+
+      <!-- TRANSACTIONS LIST -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">All Recorded Transactions</h2>
+          <button id="export-csv" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">📥 Export to CSV</button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Type</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="tx-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <aside class="sidebar-area">
+      <div class="ad-slot ad-slot-sidebar">
+        <span class="ad-placeholder-text">Google AdSense Sticky Sidebar (300x600)</span>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p>© 2026 FinancePulse. Private & free expense tracking app.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set default date to today
+      document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+
+      function renderTransactions() {
+        const list = DataManager.get(STORAGE_KEYS.TRANSACTIONS) || [];
+        const tbody = document.getElementById('tx-table-body');
+
+        if (list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No transactions added yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = list.map(t => `
+          <tr>
+            <td>${t.date}</td>
+            <td><strong>${t.description}</strong></td>
+            <td><span class="badge badge-info">${t.category}</span></td>
+            <td style="font-weight: 700; color: ${t.type === 'income' ? 'var(--emerald)' : 'var(--text-primary)'}">
+              ${t.type === 'income' ? '+' : '-'}${DataManager.formatCurrency(t.amount)}
+            </td>
+            <td><span class="badge ${t.type === 'income' ? 'badge-success' : 'badge-danger'}">${t.type.toUpperCase()}</span></td>
+            <td>
+              <button onclick="deleteTx('${t.id}')" class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      window.deleteTx = function(id) {
+        let list = DataManager.get(STORAGE_KEYS.TRANSACTIONS) || [];
+        list = list.filter(t => t.id !== id);
+        DataManager.set(STORAGE_KEYS.TRANSACTIONS, list);
+        renderTransactions();
+      };
+
+      document.getElementById('tx-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const desc = document.getElementById('tx-desc').value.trim();
+        const amount = parseFloat(document.getElementById('tx-amount').value);
+        const type = document.getElementById('tx-type').value;
+        const category = document.getElementById('tx-cat').value.trim();
+        const date = document.getElementById('tx-date').value;
+
+        if (desc && amount > 0 && category && date) {
+          const list = DataManager.get(STORAGE_KEYS.TRANSACTIONS) || [];
+          list.unshift({ id: Date.now().toString(), description: desc, amount, type, category, date });
+          DataManager.set(STORAGE_KEYS.TRANSACTIONS, list);
+          e.target.reset();
+          document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+          renderTransactions();
+        }
+      });
+
+      // CSV Export feature
+      document.getElementById('export-csv').addEventListener('click', () => {
+        const list = DataManager.get(STORAGE_KEYS.TRANSACTIONS) || [];
+        if (list.length === 0) return alert('No transactions to export.');
+
+        let csv = 'ID,Date,Description,Category,Type,Amount\n';
+        list.forEach(t => {
+          csv += `"${t.id}","${t.date}","${t.description.replace(/"/g, '""')}","${t.category}","${t.type}",${t.amount}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'financepulse_transactions.csv';
+        a.click();
+      });
+
+      renderTransactions();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debt Payoff Planner — FinancePulse</title>
+  <meta name="description" content="Calculate your debt-free date using the Debt Avalanche or Debt Snowball strategy. Save thousands in interest fees.">
+  
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">$</div>
+        <span>FinancePulse</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">📊 Dashboard</a></li>
+        <li><a href="budget.html" class="nav-link">🎯 Budget</a></li>
+        <li><a href="expenses.html" class="nav-link">💳 Expenses</a></li>
+        <li><a href="investment.html" class="nav-link">📈 Investment</a></li>
+        <li><a href="savings.html" class="nav-link">🐖 Savings</a></li>
+        <li><a href="debt.html" class="nav-link active">⚡ Debt Payoff</a></li>
+        <li><a href="networth.html" class="nav-link">🏛️ Net Worth</a></li>
+        <li><a href="currency.html" class="nav-link">💱 Currency</a></li>
+      </ul>
+
+      <button id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Theme">☀️</button>
+    </div>
+  </nav>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    <main class="content-area">
+      
+      <div class="ad-slot ad-slot-header">
+        <span class="ad-placeholder-text">Google AdSense Header Banner (728x90)</span>
+      </div>
+
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800;">Debt Payoff Planner (Avalanche vs Snowball)</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Accelerate your journey to becoming 100% debt free with proven strategy algorithms.</p>
+      </div>
+
+      <div class="grid-2">
+        <!-- ADD DEBT ITEM FORM -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">+ Add Debt Account</h2>
+          </div>
+          <form id="debt-form">
+            <div class="form-group">
+              <label class="form-label">Debt Name</label>
+              <input type="text" id="debt-name" class="form-control" placeholder="e.g. Credit Card A, Car Loan" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Balance ($)</label>
+              <input type="number" id="debt-balance" class="form-control" placeholder="5000" min="1" step="any" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Annual Interest Rate (%)</label>
+              <input type="number" id="debt-rate" class="form-control" placeholder="18.9" min="0" step="0.1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Minimum Monthly Payment ($)</label>
+              <input type="number" id="debt-min" class="form-control" placeholder="120" min="1" step="any" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Add Debt</button>
+          </form>
+        </div>
+
+        <!-- SIMULATION CONFIG -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <h2 class="card-title" style="margin-bottom: 1rem;">Payoff Strategy Settings</h2>
+            <div class="form-group">
+              <label class="form-label">Extra Monthly Payment Available ($)</label>
+              <input type="number" id="extra-payment" class="form-control" value="200" min="0" step="any">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Strategy Method</label>
+              <select id="strategy-method" class="form-control">
+                <option value="avalanche">⚡ Avalanche (Highest Interest First - Saves Most Money)</option>
+                <option value="snowball">❄️ Snowball (Lowest Balance First - Quick Motivation Wins)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border-color);">
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">Estimated Debt Free Time</div>
+            <div id="payoff-time" style="font-size: 2rem; font-weight: 800; color: var(--emerald);">0 Months</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Total Interest: <span id="payoff-interest" style="color: var(--rose); font-weight: 700;">$0.00</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-slot ad-slot-incontent">
+        <span class="ad-placeholder-text">Google AdSense In-Article Banner</span>
+      </div>
+
+      <!-- DEBTS LIST TABLE -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Your Debt Accounts</h2>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Debt Name</th>
+                <th>Balance</th>
+                <th>Interest Rate</th>
+                <th>Min Payment</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="debts-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <aside class="sidebar-area">
+      <div class="ad-slot ad-slot-sidebar">
+        <span class="ad-placeholder-text">Google AdSense Sticky Sidebar (300x600)</span>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p>© 2026 FinancePulse. Become debt free faster.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script src="js/calculators.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      function renderDebtsAndSimulate() {
+        const debts = DataManager.get(STORAGE_KEYS.DEBTS) || [];
+        const tbody = document.getElementById('debts-table-body');
+
+        if (debts.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No debts added yet. Congratulations!</td></tr>';
+          document.getElementById('payoff-time').innerText = '0 Months';
+          document.getElementById('payoff-interest').innerText = '$0.00';
+          return;
+        }
+
+        tbody.innerHTML = debts.map(d => `
+          <tr>
+            <td><strong>${d.name}</strong></td>
+            <td style="color: var(--rose); font-weight: 700;">${DataManager.formatCurrency(d.balance)}</td>
+            <td>${d.rate}%</td>
+            <td>${DataManager.formatCurrency(d.minPayment)}</td>
+            <td>
+              <button onclick="deleteDebt('${d.id}')" class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Remove</button>
+            </td>
+          </tr>
+        `).join('');
+
+        // Run simulation
+        const extra = parseFloat(document.getElementById('extra-payment').value) || 0;
+        const strategy = document.getElementById('strategy-method').value;
+
+        const sim = Calculators.calculateDebtPayoff(debts, extra, strategy);
+
+        document.getElementById('payoff-time').innerText = `${sim.totalMonths} Months (${sim.years} Yrs)`;
+        document.getElementById('payoff-interest').innerText = DataManager.formatCurrency(sim.totalInterestPaid);
+      }
+
+      window.deleteDebt = function(id) {
+        let debts = DataManager.get(STORAGE_KEYS.DEBTS) || [];
+        debts = debts.filter(d => d.id !== id);
+        DataManager.set(STORAGE_KEYS.DEBTS, debts);
+        renderDebtsAndSimulate();
+      };
+
+      document.getElementById('debt-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('debt-name').value.trim();
+        const balance = parseFloat(document.getElementById('debt-balance').value);
+        const rate = parseFloat(document.getElementById('debt-rate').value);
+        const minPayment = parseFloat(document.getElementById('debt-min').value);
+
+        if (name && balance > 0) {
+          const debts = DataManager.get(STORAGE_KEYS.DEBTS) || [];
+          debts.push({ id: Date.now().toString(), name, balance, rate, minPayment });
+          DataManager.set(STORAGE_KEYS.DEBTS, debts);
+          e.target.reset();
+          renderDebtsAndSimulate();
+        }
+      });
+
+      document.getElementById('extra-payment').addEventListener('input', renderDebtsAndSimulate);
+      document.getElementById('strategy-method').addEventListener('change', renderDebtsAndSimulate);
+
+      renderDebtsAndSimulate();
+    });
+  </script>
+</body>
+</html>
